@@ -1,32 +1,43 @@
+
 package cl.duoc.tutorvirtual
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
-import androidx.activity.compose.BackHandler
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import androidx.navigation.compose.currentBackStackEntryAsState
 import cl.duoc.tutorvirtual.ui.screens.GuiaMetodologicaScreen
 
 class MainActivity : ComponentActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContent { MaterialTheme { TutorVirtualApp() } }
+
+        setContent {
+            MaterialTheme {
+                TutorVirtualApp()
+            }
+        }
     }
 }
 
 @Composable
 fun TutorVirtualApp() {
-    var pantalla by remember { mutableStateOf("Inicio") }
 
-    BackHandler(enabled = pantalla != "Inicio") {
-        pantalla = "Inicio"
-    }
+    val navController = rememberNavController()
+
+    val pantallaActual by navController.currentBackStackEntryAsState()
+    val ruta = pantallaActual?.destination?.route
 
     Scaffold(
         topBar = {
@@ -34,46 +45,153 @@ fun TutorVirtualApp() {
                 Text(
                     "Tutor Virtual ESUCAR",
                     style = MaterialTheme.typography.titleLarge,
-                    modifier = Modifier.fillMaxWidth().padding(20.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp)
+                )
+            }
+        },
+
+        bottomBar = {
+            NavigationBar {
+
+                NavigationBarItem(
+                    selected = ruta == "inicio",
+                    onClick = { navController.navigate("inicio") },
+                    icon = { Text("I") },
+                    label = { Text("Inicio") }
+                )
+
+                NavigationBarItem(
+                    selected = ruta == "guia",
+                    onClick = { navController.navigate("guia") },
+                    icon = { Text("G") },
+                    label = { Text("Guía") }
+                )
+
+                NavigationBarItem(
+                    selected = ruta == "faq",
+                    onClick = { navController.navigate("faq") },
+                    icon = { Text("?") },
+                    label = { Text("FAQ") }
+                )
+
+                NavigationBarItem(
+                    selected = ruta == "avances",
+                    onClick = { navController.navigate("avances") },
+                    icon = { Text("A") },
+                    label = { Text("Avances") }
+                )
+
+                NavigationBarItem(
+                    selected = ruta == "perfil",
+                    onClick = { navController.navigate("perfil") },
+                    icon = { Text("P") },
+                    label = { Text("Perfil") }
                 )
             }
         }
+
     ) { padding ->
-        Column(
-            modifier = Modifier
-                .padding(padding)
-                .fillMaxSize()
-                .verticalScroll(rememberScrollState())
-                .padding(20.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+
+        NavHost(
+            navController = navController,
+            startDestination = "inicio",
+            modifier = Modifier.padding(padding)
         ) {
-            when (pantalla) {
-                "Inicio" -> {
-                    Text("Bienvenido al Tutor Virtual",
-                        style = MaterialTheme.typography.headlineSmall)
+
+            // INICIO
+            composable("inicio") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+
+                    Text(
+                        "Bienvenido al Tutor Virtual",
+                        style = MaterialTheme.typography.headlineSmall
+                    )
+
                     Text("Apoyo para Trabajo de Título I, II y III.")
-                    listOf("Guía metodológica", "Preguntas frecuentes",
-                        "Mis avances", "Mi perfil").forEach { destino ->
-                        Button(
-                            onClick = { pantalla = destino },
-                            modifier = Modifier.fillMaxWidth()
-                        ) { Text(destino) }
+
+                    Button(
+                        onClick = { navController.navigate("guia") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Guía metodológica")
                     }
-                }
-                "Guía metodológica" -> {
-                    GuiaMetodologicaScreen()
-                    OutlinedButton(onClick = { pantalla = "Inicio" }) {
-                        Text("Volver al inicio")
+
+                    Button(
+                        onClick = { navController.navigate("faq") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Preguntas frecuentes")
                     }
-                }
-                else -> {
-                    Text(pantalla, style = MaterialTheme.typography.headlineMedium)
-                    Text("Módulo preparado para próximas actividades.")
-                    OutlinedButton(onClick = { pantalla = "Inicio" }) {
-                        Text("Volver al inicio")
+
+                    Button(
+                        onClick = { navController.navigate("avances") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Mis avances")
+                    }
+
+                    Button(
+                        onClick = { navController.navigate("perfil") },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Mi perfil")
                     }
                 }
             }
+
+            // GUIA
+            composable("guia") {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(20.dp)
+                ) {
+                    GuiaMetodologicaScreen()
+                }
+            }
+
+            // FAQ
+            composable("faq") {
+                PantallaPendiente("Preguntas frecuentes")
+            }
+
+            // AVANCES
+            composable("avances") {
+                PantallaPendiente("Mis avances")
+            }
+
+            // PERFIL
+            composable("perfil") {
+                PantallaPendiente("Mi perfil")
+            }
         }
+    }
+}
+
+@Composable
+fun PantallaPendiente(titulo: String) {
+
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(20.dp)
+    ) {
+
+        Text(
+            titulo,
+            style = MaterialTheme.typography.headlineSmall
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Text("Esta sección se implementará próximamente.")
     }
 }
