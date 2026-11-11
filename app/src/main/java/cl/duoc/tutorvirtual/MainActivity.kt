@@ -19,6 +19,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import cl.duoc.tutorvirtual.ui.screens.GuiaMetodologicaScreen
 import cl.duoc.tutorvirtual.ui.screens.FaqScreen
 import cl.duoc.tutorvirtual.ui.screens.AvancesScreen
+import cl.duoc.tutorvirtual.ui.screens.PerfilScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -59,45 +60,35 @@ fun TutorVirtualApp() {
 
                 NavigationBarItem(
                     selected = ruta == "inicio",
-                    onClick = {
-                        navController.navigate("inicio")
-                    },
+                    onClick = { navController.navigate("inicio") },
                     icon = { Text("I") },
                     label = { Text("Inicio") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "guia",
-                    onClick = {
-                        navController.navigate("guia")
-                    },
+                    onClick = { navController.navigate("guia") },
                     icon = { Text("G") },
                     label = { Text("Guía") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "faq",
-                    onClick = {
-                        navController.navigate("faq")
-                    },
+                    onClick = { navController.navigate("faq") },
                     icon = { Text("?") },
                     label = { Text("FAQ") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "avances",
-                    onClick = {
-                        navController.navigate("avances")
-                    },
+                    onClick = { navController.navigate("avances") },
                     icon = { Text("A") },
                     label = { Text("Avances") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "perfil",
-                    onClick = {
-                        navController.navigate("perfil")
-                    },
+                    onClick = { navController.navigate("perfil") },
                     icon = { Text("P") },
                     label = { Text("Perfil") }
                 )
@@ -118,51 +109,39 @@ fun TutorVirtualApp() {
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(20.dp),
-                    verticalArrangement =
-                        Arrangement.spacedBy(12.dp)
+                    verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
 
                     Text(
                         "Bienvenido al Tutor Virtual",
-                        style =
-                            MaterialTheme.typography.headlineSmall
+                        style = MaterialTheme.typography.headlineSmall
                     )
 
-                    Text(
-                        "Apoyo para Trabajo de Título I, II y III."
-                    )
+                    Text("Apoyo para Trabajo de Título I, II y III.")
 
                     Button(
-                        onClick = {
-                            navController.navigate("guia")
-                        },
+                        onClick = { navController.navigate("guia") },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Guía metodológica")
                     }
 
                     Button(
-                        onClick = {
-                            navController.navigate("faq")
-                        },
+                        onClick = { navController.navigate("faq") },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Preguntas frecuentes")
                     }
 
                     Button(
-                        onClick = {
-                            navController.navigate("avances")
-                        },
+                        onClick = { navController.navigate("avances") },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Mis avances")
                     }
 
                     Button(
-                        onClick = {
-                            navController.navigate("perfil")
-                        },
+                        onClick = { navController.navigate("perfil") },
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Text("Mi perfil")
@@ -191,23 +170,7 @@ fun TutorVirtualApp() {
             }
 
             composable("perfil") {
-
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp)
-                ) {
-
-                    Text(
-                        "Mi perfil",
-                        style =
-                            MaterialTheme.typography.headlineSmall
-                    )
-
-                    Text(
-                        "Aquí agregaremos el formulario de perfil."
-                    )
-                }
+                PerfilScreen()
             }
         }
     }
