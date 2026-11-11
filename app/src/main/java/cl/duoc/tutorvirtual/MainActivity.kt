@@ -17,6 +17,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import cl.duoc.tutorvirtual.ui.screens.GuiaMetodologicaScreen
+import cl.duoc.tutorvirtual.ui.screens.FaqScreen
 
 class MainActivity : ComponentActivity() {
 
@@ -43,7 +44,7 @@ fun TutorVirtualApp() {
         topBar = {
             Surface(tonalElevation = 3.dp) {
                 Text(
-                    "Tutor Virtual ESUCAR",
+                    text = "Tutor Virtual ESUCAR",
                     style = MaterialTheme.typography.titleLarge,
                     modifier = Modifier
                         .fillMaxWidth()
@@ -102,6 +103,7 @@ fun TutorVirtualApp() {
 
             // INICIO
             composable("inicio") {
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -146,8 +148,9 @@ fun TutorVirtualApp() {
                 }
             }
 
-            // GUIA
+            // GUIA METODOLOGICA
             composable("guia") {
+
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -158,9 +161,9 @@ fun TutorVirtualApp() {
                 }
             }
 
-            // FAQ
+            // PREGUNTAS FRECUENTES
             composable("faq") {
-                PantallaPendiente("Preguntas frecuentes")
+                FaqScreen()
             }
 
             // AVANCES
