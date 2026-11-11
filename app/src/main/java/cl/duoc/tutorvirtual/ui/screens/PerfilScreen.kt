@@ -62,19 +62,26 @@ fun PerfilScreen() {
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
 
-        if (guardado) {
+        Text(
+            "Mi perfil",
+            style = MaterialTheme.typography.headlineSmall
+        )
 
-            // RESUMEN DEL PERFIL
+        FotoPerfil()
+
+        HorizontalDivider()
+
+        if (guardado) {
 
             Text(
                 "Perfil guardado correctamente",
-                style = MaterialTheme.typography.headlineSmall,
                 color = MaterialTheme.colorScheme.primary
             )
 
             Card(
                 modifier = Modifier.fillMaxWidth()
             ) {
+
                 Column(
                     modifier = Modifier.padding(16.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -102,13 +109,6 @@ fun PerfilScreen() {
             }
 
         } else {
-
-            // FORMULARIO
-
-            Text(
-                "Mi perfil",
-                style = MaterialTheme.typography.headlineSmall
-            )
 
             Text("Completa tus datos personales")
 
