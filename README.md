@@ -55,7 +55,7 @@ cl.duoc.tutorvirtual/
 │   ├── model/
 │   │   ├── Hito.kt                 # Modelo de hitos y estados (EstadoHito)
 │   │   ├── Avance.kt               # Modelo de avances de trabajo de título
-│   │   ├── FaqItem.kt              # Modelo de preguntas frecuentes
+│   │   ├── PreguntaFrecuente.kt    # Modelo de preguntas frecuentes
 │   │   ├── PerfilEstudiante.kt     # Modelo de datos del perfil
 │   │   └── PerfilUiState.kt        # Estado inmutable de UI y errores de validación
 │   └── repository/
@@ -89,7 +89,7 @@ cl.duoc.tutorvirtual/
 * Enrutamiento declarativo seguro mediante `NavHost`.
 
 ### 2. Guía Metodológica
-* Contenido oficial estructurado para Trabajo de Título I, II y III (Delimitación, Marco Teórico, Metodología, Propuesta de Mejora y Defensa).
+* Guía metodológica estructurada en cinco etapas: planteamiento del problema, marco teórico, metodología, recogida de información y análisis de resultados.
 * Navegación interactiva entre etapas con animación fluida `AnimatedVisibility`.
 
 ### 3. Preguntas Frecuentes (FAQ)
@@ -104,10 +104,11 @@ cl.duoc.tutorvirtual/
 
 ### 5. Mi Perfil y Foto de Credencial
 * Formulario con validación reactiva:
-  * **Nombre:** Obligatorio (mínimo 3 caracteres).
-  * **Correo institucional:** Formato válido `@carabineros.cl` o correo institucional válido.
-  * **RUT:** Formato válido chileno (12345678-9).
-  * **Dirección, Grado, Asignatura y Profesor Guía:** Campos obligatorios.
+  * **Nombre:** Campo obligatorio.
+  * **Correo:** Formato de correo electrónico válido.
+  * **Clave de prueba:** Mínimo 6 caracteres; no se almacena.
+  * **Dirección:** Campo obligatorio y persistido localmente.
+  * **RUT, grado, asignatura y profesor guía:** Datos académicos cargados desde el perfil local.
 * Indicadores visuales de error (`isError`, `trailingIcon` con advertencia y `supportingText`).
 * Visualización animada de tarjeta resumen una vez guardado con éxito.
 * **Recursos Nativos:**

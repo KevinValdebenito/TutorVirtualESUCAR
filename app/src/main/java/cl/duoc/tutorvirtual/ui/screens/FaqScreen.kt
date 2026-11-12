@@ -77,7 +77,7 @@ fun FaqScreen() {
                         onClick = {
                             categoria = item
                             mostrarMenu = false
-                            modelo.buscar(busqueda, categoria)
+                            modelo.buscar(busqueda, item)
                         }
                     )
                 }
