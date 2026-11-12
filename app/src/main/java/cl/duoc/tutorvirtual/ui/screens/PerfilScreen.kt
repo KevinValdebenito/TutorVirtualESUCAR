@@ -209,9 +209,7 @@ fun PerfilScreen() {
 
             Button(
                 onClick = {
-                    if (modelo.validarFormulario()) {
-                        modelo.guardar()
-                    }
+                    modelo.guardar()
                 },
                 modifier = Modifier.fillMaxWidth()
             ) {
