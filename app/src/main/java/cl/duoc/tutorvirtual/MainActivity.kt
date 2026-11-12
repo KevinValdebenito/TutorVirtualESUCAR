@@ -8,6 +8,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -61,35 +67,35 @@ fun TutorVirtualApp() {
                 NavigationBarItem(
                     selected = ruta == "inicio",
                     onClick = { navController.navigate("inicio") },
-                    icon = { Text("I") },
+                    icon = { Icon(Icons.Default.Home, contentDescription = "Inicio") },
                     label = { Text("Inicio") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "guia",
                     onClick = { navController.navigate("guia") },
-                    icon = { Text("G") },
+                    icon = { Icon(Icons.AutoMirrored.Filled.List, contentDescription = "Guía") },
                     label = { Text("Guía") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "faq",
                     onClick = { navController.navigate("faq") },
-                    icon = { Text("?") },
+                    icon = { Icon(Icons.Default.Info, contentDescription = "FAQ") },
                     label = { Text("FAQ") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "avances",
                     onClick = { navController.navigate("avances") },
-                    icon = { Text("A") },
+                    icon = { Icon(Icons.Default.CheckCircle, contentDescription = "Avances") },
                     label = { Text("Avances") }
                 )
 
                 NavigationBarItem(
                     selected = ruta == "perfil",
                     onClick = { navController.navigate("perfil") },
-                    icon = { Text("P") },
+                    icon = { Icon(Icons.Default.Person, contentDescription = "Perfil") },
                     label = { Text("Perfil") }
                 )
             }

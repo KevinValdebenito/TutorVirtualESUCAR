@@ -1,9 +1,16 @@
 
 package cl.duoc.tutorvirtual.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -234,67 +241,96 @@ fun AvancesScreen() {
                             }
                         }
 
-                        if (mostrarFormulario) {
-
-                            OutlinedTextField(
-                                value = titulo,
-                                onValueChange = {
-                                    titulo = it
-                                },
-                                label = {
-                                    Text("Título del avance")
-                                },
-                                isError = mostrarError &&
-                                        titulo.isBlank(),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            OutlinedTextField(
-                                value = descripcion,
-                                onValueChange = {
-                                    descripcion = it
-                                },
-                                label = {
-                                    Text("Descripción")
-                                },
-                                isError = mostrarError &&
-                                        descripcion.isBlank(),
-                                minLines = 3,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            if (mostrarError) {
-                                Text(
-                                    "Completa ambos campos.",
-                                    color =
-                                        MaterialTheme.colorScheme.error
-                                )
-                            }
-
-                            Button(
-                                onClick = {
-                                    if (titulo.isNotBlank() &&
-                                        descripcion.isNotBlank()
-                                    ) {
-
-                                        modelo.registrarAvance(
-                                            hito.id,
-                                            titulo,
-                                            descripcion
-                                        )
-
-                                        titulo = ""
-                                        descripcion = ""
-                                        mostrarError = false
-                                        mostrarFormulario = false
-
-                                    } else {
-                                        mostrarError = true
-                                    }
-                                },
+                        AnimatedVisibility(
+                            visible = mostrarFormulario,
+                            enter = fadeIn() + expandVertically(),
+                            exit = fadeOut() + shrinkVertically()
+                        ) {
+                            Column(
+                                verticalArrangement = Arrangement.spacedBy(10.dp),
                                 modifier = Modifier.fillMaxWidth()
                             ) {
-                                Text("Guardar avance")
+                                OutlinedTextField(
+                                    value = titulo,
+                                    onValueChange = {
+                                        titulo = it
+                                    },
+                                    label = {
+                                        Text("Título del avance")
+                                    },
+                                    isError = mostrarError && titulo.isBlank(),
+                                    trailingIcon = {
+                                        if (mostrarError && titulo.isBlank()) {
+                                            Icon(
+                                                imageVector = Icons.Default.Warning,
+                                                contentDescription = "Error",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
+                                    supportingText = {
+                                        if (mostrarError && titulo.isBlank()) {
+                                            Text("El título es obligatorio")
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                OutlinedTextField(
+                                    value = descripcion,
+                                    onValueChange = {
+                                        descripcion = it
+                                    },
+                                    label = {
+                                        Text("Descripción")
+                                    },
+                                    isError = mostrarError && descripcion.isBlank(),
+                                    trailingIcon = {
+                                        if (mostrarError && descripcion.isBlank()) {
+                                            Icon(
+                                                imageVector = Icons.Default.Warning,
+                                                contentDescription = "Error",
+                                                tint = MaterialTheme.colorScheme.error
+                                            )
+                                        }
+                                    },
+                                    supportingText = {
+                                        if (mostrarError && descripcion.isBlank()) {
+                                            Text("La descripción es obligatoria")
+                                        }
+                                    },
+                                    minLines = 3,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+
+                                if (mostrarError) {
+                                    Text(
+                                        "Completa todos los campos obligatorios.",
+                                        color = MaterialTheme.colorScheme.error,
+                                        style = MaterialTheme.typography.bodySmall
+                                    )
+                                }
+
+                                Button(
+                                    onClick = {
+                                        if (titulo.isNotBlank() && descripcion.isNotBlank()) {
+                                            modelo.registrarAvance(
+                                                hito.id,
+                                                titulo,
+                                                descripcion
+                                            )
+                                            titulo = ""
+                                            descripcion = ""
+                                            mostrarError = false
+                                            mostrarFormulario = false
+                                        } else {
+                                            mostrarError = true
+                                        }
+                                    },
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Text("Guardar avance")
+                                }
                             }
                         }
                     }
