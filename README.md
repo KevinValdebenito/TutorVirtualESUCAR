@@ -93,7 +93,7 @@ cl.duoc.tutorvirtual/
 * Navegación interactiva entre etapas con animación fluida `AnimatedVisibility`.
 
 ### 3. Preguntas Frecuentes (FAQ)
-* Búsqueda por texto y filtro por categoría (General, Formato, Fechas, Asesoría).
+* Búsqueda por texto y filtro por categoría (Norma APA, Metodología, Formato y Entregas).
 * Tarjetas tipo acordeón interactivo que expanden y contraen la respuesta con animación.
 
 ### 4. Seguimiento de Hitos y Registro de Avances
@@ -101,6 +101,8 @@ cl.duoc.tutorvirtual/
 * Cambio de estados (`POR_INICIAR`, `EN_DESARROLLO`, `ENVIADO`, `APROBADO`).
 * Formulario desplegable animado para registrar avances con validación de campos obligatorios.
 * Diálogo de confirmación para eliminar avances.
+* Edición local de fechas límite y recordatorios para hitos pendientes a las 09:00 del día anterior. Las alarmas son inexactas y pueden retrasarse según Android.
+* Botón para solicitar el permiso de notificaciones y mostrar una notificación de prueba sin esperar al vencimiento.
 
 ### 5. Mi Perfil y Foto de Credencial
 * Formulario con validación reactiva:
@@ -155,3 +157,5 @@ cl.duoc.tutorvirtual/
      ```bash
      ./gradlew assembleDebug
      ```
+
+5. **Demostrar recordatorios:** abrir *Mis avances*, pulsar **Probar notificación local** y permitir las notificaciones si Android lo solicita. Para revisar una alarma programada, cambiar la fecha de un hito a una fecha futura y dejar autorizado el permiso.

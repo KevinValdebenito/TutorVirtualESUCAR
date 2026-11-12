@@ -18,6 +18,7 @@ interface HitoRepository {
     suspend fun obtenerHitos(): List<Hito>
     suspend fun obtenerHitoPorId(id: Long): Hito?
     suspend fun actualizarEstadoHito(id: Long, nuevoEstado: EstadoHito, nuevoPorcentaje: Int): Boolean
+    suspend fun actualizarFechaLimite(id: Long, fecha: String): Boolean
     suspend fun registrarAvance(avance: Avance): Long
     suspend fun obtenerAvancesPorHito(hitoId: Long): List<Avance>
     suspend fun eliminarAvance(id: Long): Boolean
@@ -59,6 +60,12 @@ class HitoRepositoryImpl(
         if (actualizado) {
             _hitosFlow.value = localDataSource.obtenerHitos()
         }
+        actualizado
+    }
+
+    override suspend fun actualizarFechaLimite(id: Long, fecha: String): Boolean = withContext(Dispatchers.IO) {
+        val actualizado = localDataSource.actualizarFechaLimite(id, fecha)
+        if (actualizado) _hitosFlow.value = localDataSource.obtenerHitos()
         actualizado
     }
 
