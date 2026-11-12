@@ -1,9 +1,18 @@
 
 package cl.duoc.tutorvirtual.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -68,7 +77,7 @@ fun FaqScreen() {
                         onClick = {
                             categoria = item
                             mostrarMenu = false
-                            modelo.buscar(busqueda, categoria)
+                            modelo.buscar(busqueda, item)
                         }
                     )
                 }
@@ -103,21 +112,36 @@ fun FaqScreen() {
                 verticalArrangement = Arrangement.spacedBy(10.dp)
             ) {
 
-                items(preguntas) { pregunta ->
+                items(preguntas, key = { it.id }) { pregunta ->
+
+                    var expandido by remember { mutableStateOf(false) }
 
                     Card(
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable { expandido = !expandido }
                     ) {
 
                         Column(
                             modifier = Modifier.padding(16.dp)
                         ) {
 
-                            Text(
-                                text = pregunta.categoria,
-                                color = MaterialTheme.colorScheme.primary,
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Text(
+                                    text = pregunta.categoria,
+                                    color = MaterialTheme.colorScheme.primary,
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+
+                                Icon(
+                                    imageVector = if (expandido) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = if (expandido) "Colapsar" else "Expandir",
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            }
 
                             Spacer(modifier = Modifier.height(8.dp))
 
@@ -126,11 +150,21 @@ fun FaqScreen() {
                                 style = MaterialTheme.typography.titleMedium
                             )
 
-                            Spacer(modifier = Modifier.height(8.dp))
-
-                            Text(
-                                text = pregunta.respuesta
-                            )
+                            AnimatedVisibility(
+                                visible = expandido,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
+                            ) {
+                                Column {
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    HorizontalDivider()
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Text(
+                                        text = pregunta.respuesta,
+                                        style = MaterialTheme.typography.bodyMedium
+                                    )
+                                }
+                            }
                         }
                     }
                 }

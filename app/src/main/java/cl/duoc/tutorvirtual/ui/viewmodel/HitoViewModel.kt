@@ -7,8 +7,10 @@ import androidx.lifecycle.viewModelScope
 import cl.duoc.tutorvirtual.TutorApplication
 import cl.duoc.tutorvirtual.data.model.Avance
 import cl.duoc.tutorvirtual.data.model.EstadoHito
+import cl.duoc.tutorvirtual.notificaciones.RecordatoriosHitos
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import cl.duoc.tutorvirtual.util.FechasHito
 import java.time.LocalDate
 
 class HitoViewModel(application: Application) : AndroidViewModel(application) {
@@ -37,11 +39,30 @@ class HitoViewModel(application: Application) : AndroidViewModel(application) {
         porcentaje: Int
     ) {
         viewModelScope.launch {
-            repositorio.actualizarEstadoHito(
+            val actualizado = repositorio.actualizarEstadoHito(
                 id,
                 estado,
                 porcentaje
             )
+            if (actualizado) {
+                repositorio.obtenerHitoPorId(id)?.let {
+                    RecordatoriosHitos.programar(getApplication<Application>(), it)
+                }
+            }
+        }
+    }
+
+    fun actualizarFechaLimite(id: Long, fecha: String) {
+        val fechaElegida = FechasHito.leer(fecha)
+        if (fechaElegida == null || fechaElegida.isBefore(LocalDate.now())) return
+
+        viewModelScope.launch {
+            val actualizado = repositorio.actualizarFechaLimite(id, fecha)
+            if (actualizado) {
+                repositorio.obtenerHitoPorId(id)?.let {
+                    RecordatoriosHitos.programar(getApplication<Application>(), it)
+                }
+            }
         }
     }
 
