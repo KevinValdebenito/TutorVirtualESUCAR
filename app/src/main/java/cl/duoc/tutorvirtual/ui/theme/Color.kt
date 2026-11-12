@@ -1,7 +1,7 @@
 package cl.duoc.tutorvirtual.ui.theme
 
 import androidx.compose.ui.graphics.Color
-
+// comentario para hacer un commit
 
 val VerdeInstitucional = Color(0xFF175B3B)
 val VerdeProfundo = Color(0xFF103D2B)
