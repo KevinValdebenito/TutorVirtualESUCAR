@@ -26,6 +26,7 @@ import cl.duoc.tutorvirtual.ui.screens.GuiaMetodologicaScreen
 import cl.duoc.tutorvirtual.ui.screens.FaqScreen
 import cl.duoc.tutorvirtual.ui.screens.AvancesScreen
 import cl.duoc.tutorvirtual.ui.screens.PerfilScreen
+import cl.duoc.tutorvirtual.ui.theme.TutorVirtualESUCARTheme
 
 class MainActivity : ComponentActivity() {
 
@@ -33,7 +34,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         setContent {
-            MaterialTheme {
+            TutorVirtualESUCARTheme {
                 TutorVirtualApp()
             }
         }
@@ -50,7 +51,9 @@ fun TutorVirtualApp() {
 
     Scaffold(
         topBar = {
-            Surface(tonalElevation = 3.dp) {
+            Surface(color = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+                tonalElevation = 3.dp) {
                 Text(
                     text = "Tutor Virtual ESUCAR",
                     style = MaterialTheme.typography.titleLarge,
@@ -62,7 +65,7 @@ fun TutorVirtualApp() {
         },
 
         bottomBar = {
-            NavigationBar {
+            NavigationBar(containerColor = MaterialTheme.colorScheme.surface) {
 
                 NavigationBarItem(
                     selected = ruta == "inicio",
