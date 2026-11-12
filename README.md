@@ -159,3 +159,14 @@ cl.duoc.tutorvirtual/
      ```
 
 5. **Demostrar recordatorios:** abrir *Mis avances*, pulsar **Probar notificación local** y permitir las notificaciones si Android lo solicita. Para revisar una alarma programada, cambiar la fecha de un hito a una fecha futura y dejar autorizado el permiso.
+
+---
+
+## Identidad visual y carácter académico
+
+Este repositorio corresponde a un **prototipo estudiantil no oficial** desarrollado con fines académicos. No representa una aplicación publicada ni respaldada oficialmente por Carabineros de Chile o el Gobierno de Chile.
+
+Los recursos institucionales se incorporaron sin alterar sus proporciones desde fuentes oficiales:
+
+* Marca de Carabineros de Chile: portal institucional ESUCAR (`sigaesucar.carabineros.cl`).
+* Marca Gobierno de Chile: Kit Digital oficial (`kitdigital.gob.cl`).
