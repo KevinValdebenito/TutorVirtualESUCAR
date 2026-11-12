@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -23,6 +24,7 @@ fun PerfilScreen() {
     val perfil by modelo.perfil.collectAsState()
     val direccionGuardada by modelo.direccion.collectAsState()
     val guardado by modelo.guardado.collectAsState()
+    val guardando by modelo.guardando.collectAsState()
     val error by modelo.error.collectAsState()
 
     var nombre by remember(perfil.nombre) {
@@ -53,10 +55,18 @@ fun PerfilScreen() {
     val direccionIncorrecta = mostrarErrores && direccion.isBlank()
 
     val claveIncorrecta = mostrarErrores && clave.length < 6
+    val snackbar = remember { SnackbarHostState() }
+    LaunchedEffect(guardado) {
+        if (guardado) snackbar.showSnackbar("Perfil guardado correctamente")
+    }
 
+
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
     Column(
         modifier = Modifier
-            .fillMaxSize()
+            .widthIn(max = 880.dp)
+            .fillMaxWidth()
+            .fillMaxHeight()
             .verticalScroll(rememberScrollState())
             .padding(20.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -191,7 +201,10 @@ fun PerfilScreen() {
                 )
             }
 
+            if (guardando) LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+
             Button(
+                enabled = !guardando,
                 onClick = {
 
                     mostrarErrores = true
@@ -223,5 +236,7 @@ fun PerfilScreen() {
                 Text("Guardar perfil")
             }
         }
+    }
+    SnackbarHost(hostState = snackbar, modifier = Modifier.align(Alignment.BottomCenter))
     }
 }

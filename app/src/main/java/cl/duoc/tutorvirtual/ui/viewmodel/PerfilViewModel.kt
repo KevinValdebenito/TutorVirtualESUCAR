@@ -26,6 +26,7 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
     )
 
     val guardado = MutableStateFlow(false)
+    val guardando = MutableStateFlow(false)
     val error = MutableStateFlow("")
 
     init {
@@ -46,6 +47,7 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
 
             guardado.value = false
+            guardando.value = true
             error.value = ""
 
             try {
@@ -73,6 +75,8 @@ class PerfilViewModel(application: Application) : AndroidViewModel(application) 
 
             } catch (e: Exception) {
                 error.value = "Ocurrió un error al guardar"
+            } finally {
+                guardando.value = false
             }
         }
     }

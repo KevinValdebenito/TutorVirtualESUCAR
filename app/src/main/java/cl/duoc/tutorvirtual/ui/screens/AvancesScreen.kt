@@ -1,300 +1,235 @@
-
 package cl.duoc.tutorvirtual.ui.screens
 
+import android.Manifest
+import android.app.DatePickerDialog
+import android.os.Build
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import cl.duoc.tutorvirtual.data.model.Avance
 import cl.duoc.tutorvirtual.data.model.EstadoHito
+import cl.duoc.tutorvirtual.notificaciones.RecordatoriosHitos
+import cl.duoc.tutorvirtual.ui.viewmodel.EventoAvances
 import cl.duoc.tutorvirtual.ui.viewmodel.HitoViewModel
+import cl.duoc.tutorvirtual.util.FechasHito
+import java.time.LocalDate
 
 @Composable
 fun AvancesScreen() {
-
     val modelo: HitoViewModel = viewModel()
-
     val hitos by modelo.hitos.collectAsState()
     val avances by modelo.avances.collectAsState()
     val cargando by modelo.cargando.collectAsState()
+    val operando by modelo.operando.collectAsState()
+    val contexto = LocalContext.current
+    val snackbar = remember { SnackbarHostState() }
 
-    var avanceParaEliminar by remember {
-        mutableStateOf<Avance?>(null)
+    var formularioHitoId by remember { mutableStateOf<Long?>(null) }
+    var titulo by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var mostrarError by remember { mutableStateOf(false) }
+    var editar by remember { mutableStateOf<Avance?>(null) }
+    var editarTitulo by remember { mutableStateOf("") }
+    var editarDescripcion by remember { mutableStateOf("") }
+    var eliminar by remember { mutableStateOf<Avance?>(null) }
+    var hacerPruebaDespuesDePermiso by remember { mutableStateOf(false) }
+
+    val pedirPermiso = rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { concedido ->
+        if (concedido && hacerPruebaDespuesDePermiso) RecordatoriosHitos.mostrarPrueba(contexto)
+        hacerPruebaDespuesDePermiso = false
     }
 
-    if (avanceParaEliminar != null) {
-
-        AlertDialog(
-            onDismissRequest = {
-                avanceParaEliminar = null
-            },
-            title = {
-                Text("Eliminar avance")
-            },
-            text = {
-                Text("¿Seguro que deseas eliminar este avance?")
-            },
-            confirmButton = {
-                TextButton(
-                    onClick = {
-                        val avance = avanceParaEliminar
-
-                        if (avance != null) {
-                            modelo.eliminarAvance(avance.id)
-                        }
-
-                        avanceParaEliminar = null
-                    }
-                ) {
-                    Text("Eliminar")
+    LaunchedEffect(modelo) {
+        modelo.eventos.collect { evento ->
+            when (evento) {
+                is EventoAvances.Mensaje -> snackbar.showSnackbar(evento.texto)
+                EventoAvances.AvanceGuardado -> {
+                    formularioHitoId = null
+                    titulo = ""
+                    descripcion = ""
+                    mostrarError = false
                 }
-            },
-            dismissButton = {
-                TextButton(
-                    onClick = {
-                        avanceParaEliminar = null
-                    }
-                ) {
-                    Text("Cancelar")
-                }
+                EventoAvances.AvanceEditado -> editar = null
             }
+        }
+    }
+
+    fun notificacionDePrueba() {
+        if (RecordatoriosHitos.tienePermiso(contexto)) {
+            RecordatoriosHitos.mostrarPrueba(contexto)
+        } else if (Build.VERSION.SDK_INT >= 33) {
+            hacerPruebaDespuesDePermiso = true
+            pedirPermiso.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+
+    if (eliminar != null) {
+        AlertDialog(
+            onDismissRequest = { eliminar = null },
+            title = { Text("Eliminar avance") },
+            text = { Text("¿Seguro que quieres eliminar este avance?") },
+            confirmButton = {
+                TextButton(enabled = !operando, onClick = {
+                    eliminar?.let { modelo.eliminarAvance(it.id) }
+                    eliminar = null
+                }) { Text("Eliminar") }
+            },
+            dismissButton = { TextButton(onClick = { eliminar = null }) { Text("Cancelar") } }
         )
     }
 
-    LazyColumn(
-        modifier = Modifier.fillMaxSize(),
-        contentPadding = PaddingValues(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
+    if (editar != null) {
+        AlertDialog(
+            onDismissRequest = { if (!operando) editar = null },
+            title = { Text("Editar avance") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    OutlinedTextField(editarTitulo, { editarTitulo = it }, label = { Text("Título") }, singleLine = true)
+                    OutlinedTextField(editarDescripcion, { editarDescripcion = it }, label = { Text("Descripción") }, minLines = 2)
+                    if (editarTitulo.isBlank() || editarDescripcion.isBlank()) {
+                        Text("Ambos campos son obligatorios", style = MaterialTheme.typography.bodySmall)
+                    }
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    enabled = !operando && editarTitulo.isNotBlank() && editarDescripcion.isNotBlank(),
+                    onClick = { editar?.let { modelo.actualizarAvance(it.copy(titulo = editarTitulo, descripcion = editarDescripcion)) } }
+                ) { Text("Guardar cambios") }
+            },
+            dismissButton = { TextButton(enabled = !operando, onClick = { editar = null }) { Text("Cancelar") } }
+        )
+    }
 
-        item {
-            Text(
-                "Mis avances",
-                style = MaterialTheme.typography.headlineSmall
-            )
-
-            Text("Seguimiento de tu trabajo de título")
-        }
-
-        if (cargando) {
-
-            item {
-                CircularProgressIndicator()
-            }
-
-        } else if (hitos.isEmpty()) {
-
-            item {
-                Text("No hay hitos registrados.")
-            }
-
-        } else {
-
-            items(hitos, key = { it.id }) { hito ->
-
-                var mostrarFormulario by remember {
-                    mutableStateOf(false)
+    Scaffold(snackbarHost = { SnackbarHost(snackbar) }) { padding ->
+        Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.TopCenter) {
+            LazyColumn(
+                modifier = Modifier.widthIn(max = 880.dp).fillMaxWidth().fillMaxHeight(),
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                item {
+                    Text("Mis avances", style = MaterialTheme.typography.headlineSmall)
+                    Text("Seguimiento local de tu trabajo de título")
+                    Spacer(Modifier.height(12.dp))
+                    Button(onClick = { notificacionDePrueba() }, modifier = Modifier.fillMaxWidth()) {
+                        Text("Probar notificación local")
+                    }
+                    Text("Recordatorio: 09:00 del día anterior a cada hito pendiente. " +
+                            "En Android 13+ debes autorizar las notificaciones.",
+                        style = MaterialTheme.typography.bodySmall)
+                    if (operando) {
+                        Spacer(Modifier.height(8.dp))
+                        LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
+                    }
                 }
 
-                var titulo by remember {
-                    mutableStateOf("")
-                }
-
-                var descripcion by remember {
-                    mutableStateOf("")
-                }
-
-                var mostrarError by remember {
-                    mutableStateOf(false)
-                }
-
-                val avancesDelHito = avances.filter {
-                    it.hitoId == hito.id
-                }
-
-                Card(
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-
-                    Column(
-                        modifier = Modifier.padding(16.dp),
-                        verticalArrangement =
-                            Arrangement.spacedBy(10.dp)
-                    ) {
-
-                        Text(
-                            hito.titulo,
-                            style =
-                                MaterialTheme.typography.titleLarge
-                        )
-
-                        Text(hito.descripcion)
-
-                        Text("Fecha límite: ${hito.fechaLimite}")
-
-                        Text("Estado: ${hito.estado.label}")
-
-                        Text("Progreso: ${hito.porcentajeAvance}%")
-
-                        LinearProgressIndicator(
-                            progress = {
-                                hito.porcentajeAvance / 100f
-                            },
-                            modifier = Modifier.fillMaxWidth()
-                        )
-
-                        if (hito.estado == EstadoHito.POR_INICIAR) {
-
-                            OutlinedButton(
-                                onClick = {
-                                    modelo.cambiarEstado(
-                                        hito.id,
-                                        EstadoHito.EN_DESARROLLO,
-                                        25
-                                    )
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Comenzar hito")
-                            }
-                        }
-
-                        if (hito.estado != EstadoHito.ENVIADO &&
-                            hito.estado != EstadoHito.APROBADO
+                if (cargando) item { CircularProgressIndicator() }
+                else if (hitos.isEmpty()) item { Text("No hay hitos registrados.") }
+                else items(hitos, key = { it.id }) { hito ->
+                    val avancesHito = avances.filter { it.hitoId == hito.id }
+                    Card(Modifier.fillMaxWidth()) {
+                        Column(
+                            Modifier.fillMaxWidth().padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(10.dp)
                         ) {
-
-                            Button(
-                                onClick = {
-                                    modelo.cambiarEstado(
-                                        hito.id,
-                                        EstadoHito.ENVIADO,
-                                        100
-                                    )
-                                },
+                            Text(hito.titulo, style = MaterialTheme.typography.titleLarge)
+                            Text(hito.descripcion)
+                            Text("Fecha límite: ${hito.fechaLimite}")
+                            OutlinedButton(enabled = !operando, onClick = {
+                                val inicial = FechasHito.leer(hito.fechaLimite) ?: LocalDate.now()
+                                DatePickerDialog(contexto, { _, anio, mes, dia ->
+                                    modelo.actualizarFechaLimite(hito.id,
+                                        FechasHito.mostrar(LocalDate.of(anio, mes + 1, dia)))
+                                }, inicial.year, inicial.monthValue - 1, inicial.dayOfMonth).show()
+                            }) { Text("Cambiar fecha límite") }
+                            Text("Estado: ${hito.estado.label}")
+                            Text("Progreso: ${hito.porcentajeAvance}%")
+                            LinearProgressIndicator(
+                                progress = { hito.porcentajeAvance.coerceIn(0, 100) / 100f },
                                 modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text("Marcar como enviado")
-                            }
-                        }
-
-                        HorizontalDivider()
-
-                        Text(
-                            "Avances registrados",
-                            style =
-                                MaterialTheme.typography.titleMedium
-                        )
-
-                        if (avancesDelHito.isEmpty()) {
-                            Text("Aún no hay avances registrados.")
-                        }
-
-                        avancesDelHito.forEach { avance ->
-
-                            Text(
-                                avance.titulo,
-                                style =
-                                    MaterialTheme.typography.titleSmall
                             )
-
-                            Text(avance.descripcion)
-
-                            Text("Fecha: ${avance.fecha}")
-
-                            TextButton(
-                                onClick = {
-                                    avanceParaEliminar = avance
-                                }
-                            ) {
-                                Text("Eliminar avance")
+                            if (hito.estado == EstadoHito.POR_INICIAR) {
+                                OutlinedButton(
+                                    modifier = Modifier.fillMaxWidth(), enabled = !operando,
+                                    onClick = { modelo.cambiarEstado(hito.id, EstadoHito.EN_DESARROLLO, 25) }
+                                ) { Text("Comenzar hito") }
                             }
-
+                            if (hito.estado != EstadoHito.ENVIADO && hito.estado != EstadoHito.APROBADO) {
+                                Button(
+                                    modifier = Modifier.fillMaxWidth(), enabled = !operando,
+                                    onClick = { modelo.cambiarEstado(hito.id, EstadoHito.ENVIADO, 100) }
+                                ) { Text("Marcar como enviado") }
+                            }
                             HorizontalDivider()
-                        }
-
-                        // MOSTRAR FORMULARIO
-                        if (hito.estado != EstadoHito.APROBADO) {
-
-                            OutlinedButton(
-                                onClick = {
-                                    mostrarFormulario = !mostrarFormulario
-                                },
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                Text(
-                                    if (mostrarFormulario)
-                                        "Cancelar"
-                                    else
-                                        "Registrar avance"
-                                )
+                            Text("Avances registrados", style = MaterialTheme.typography.titleMedium)
+                            if (avancesHito.isEmpty()) Text("Aún no hay avances registrados.")
+                            avancesHito.forEach { avance ->
+                                Text(avance.titulo, style = MaterialTheme.typography.titleSmall)
+                                Text(avance.descripcion)
+                                Text("Fecha: ${avance.fecha}")
+                                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    TextButton(enabled = !operando, onClick = {
+                                        editar = avance
+                                        editarTitulo = avance.titulo
+                                        editarDescripcion = avance.descripcion
+                                    }) { Text("Editar") }
+                                    TextButton(enabled = !operando, onClick = { eliminar = avance }) {
+                                        Text("Eliminar")
+                                    }
+                                }
+                                HorizontalDivider()
                             }
-                        }
-
-                        if (mostrarFormulario) {
-
-                            OutlinedTextField(
-                                value = titulo,
-                                onValueChange = {
-                                    titulo = it
-                                },
-                                label = {
-                                    Text("Título del avance")
-                                },
-                                isError = mostrarError &&
-                                        titulo.isBlank(),
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            OutlinedTextField(
-                                value = descripcion,
-                                onValueChange = {
-                                    descripcion = it
-                                },
-                                label = {
-                                    Text("Descripción")
-                                },
-                                isError = mostrarError &&
-                                        descripcion.isBlank(),
-                                minLines = 3,
-                                modifier = Modifier.fillMaxWidth()
-                            )
-
-                            if (mostrarError) {
-                                Text(
-                                    "Completa ambos campos.",
-                                    color =
-                                        MaterialTheme.colorScheme.error
-                                )
-                            }
-
-                            Button(
-                                onClick = {
-                                    if (titulo.isNotBlank() &&
-                                        descripcion.isNotBlank()
-                                    ) {
-
-                                        modelo.registrarAvance(
-                                            hito.id,
-                                            titulo,
-                                            descripcion
-                                        )
-
+                            if (hito.estado != EstadoHito.APROBADO) {
+                                OutlinedButton(modifier = Modifier.fillMaxWidth(), enabled = !operando,
+                                    onClick = {
+                                        formularioHitoId = if (formularioHitoId == hito.id) null else hito.id
                                         titulo = ""
                                         descripcion = ""
                                         mostrarError = false
-                                        mostrarFormulario = false
-
-                                    } else {
-                                        mostrarError = true
-                                    }
-                                },
-                                modifier = Modifier.fillMaxWidth()
+                                    }) {
+                                    Text(if (formularioHitoId == hito.id) "Cerrar formulario" else "Registrar avance")
+                                }
+                            }
+                            AnimatedVisibility(
+                                visible = formularioHitoId == hito.id,
+                                enter = fadeIn() + expandVertically(),
+                                exit = fadeOut() + shrinkVertically()
                             ) {
-                                Text("Guardar avance")
+                                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    OutlinedTextField(
+                                        value = titulo, onValueChange = { titulo = it },
+                                        label = { Text("Título del avance") },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        isError = mostrarError && titulo.isBlank()
+                                    )
+                                    OutlinedTextField(
+                                        value = descripcion, onValueChange = { descripcion = it },
+                                        label = { Text("Descripción") }, minLines = 3,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        isError = mostrarError && descripcion.isBlank()
+                                    )
+                                    if (mostrarError) Text("Completa ambos campos", color = MaterialTheme.colorScheme.error)
+                                    Button(modifier = Modifier.fillMaxWidth(), enabled = !operando,
+                                        onClick = {
+                                            mostrarError = titulo.isBlank() || descripcion.isBlank()
+                                            if (!mostrarError) modelo.registrarAvance(hito.id, titulo, descripcion)
+                                        }) { Text("Guardar avance") }
+                                }
                             }
                         }
                     }

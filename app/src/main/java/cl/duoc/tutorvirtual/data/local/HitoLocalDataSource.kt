@@ -76,6 +76,25 @@ class HitoLocalDataSource(private val dbHelper: TutorDbHelper) {
         return filas > 0
     }
 
+    fun actualizarFechaLimite(id: Long, fecha: String): Boolean {
+        val cv = ContentValues().apply { put(TutorDbHelper.COL_HITO_FECHA_LIMITE, fecha) }
+        return dbHelper.writableDatabase.update(
+            TutorDbHelper.TABLE_HITOS, cv,
+            "${TutorDbHelper.COL_HITO_ID} = ?", arrayOf(id.toString())
+        ) > 0
+    }
+
+    fun actualizarAvance(avance: Avance): Boolean {
+        val cv = ContentValues().apply {
+            put(TutorDbHelper.COL_AVANCE_TITULO, avance.titulo)
+            put(TutorDbHelper.COL_AVANCE_DESCRIPCION, avance.descripcion)
+        }
+        return dbHelper.writableDatabase.update(
+            TutorDbHelper.TABLE_AVANCES, cv,
+            "${TutorDbHelper.COL_AVANCE_ID} = ?", arrayOf(avance.id.toString())
+        ) > 0
+    }
+
     fun agregarAvance(avance: Avance): Long {
         val db = dbHelper.writableDatabase
         val cv = ContentValues().apply {

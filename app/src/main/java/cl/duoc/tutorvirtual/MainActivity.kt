@@ -11,6 +11,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -104,10 +105,12 @@ fun TutorVirtualApp() {
         ) {
 
             composable("inicio") {
-
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .widthIn(max = 880.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                         .padding(20.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp)
                 ) {
@@ -147,17 +150,21 @@ fun TutorVirtualApp() {
                         Text("Mi perfil")
                     }
                 }
+                }
             }
 
             composable("guia") {
-
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.TopCenter) {
                 Column(
                     modifier = Modifier
-                        .fillMaxSize()
+                        .widthIn(max = 880.dp)
+                        .fillMaxWidth()
+                        .fillMaxHeight()
                         .verticalScroll(rememberScrollState())
                         .padding(20.dp)
                 ) {
                     GuiaMetodologicaScreen()
+                }
                 }
             }
 
