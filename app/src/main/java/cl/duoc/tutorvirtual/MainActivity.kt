@@ -6,13 +6,10 @@ import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.List
 import androidx.compose.material.icons.filled.CheckCircle
@@ -40,6 +37,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import cl.duoc.tutorvirtual.ui.components.ContenidoAdaptable
 import cl.duoc.tutorvirtual.ui.screens.AvancesScreen
 import cl.duoc.tutorvirtual.ui.screens.FaqScreen
 import cl.duoc.tutorvirtual.ui.screens.GuiaMetodologicaScreen
@@ -114,7 +112,7 @@ fun TutorVirtualApp() {
                         )
                     }
                 },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                colors = TopAppBarDefaults.topAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
@@ -151,14 +149,10 @@ fun TutorVirtualApp() {
             }
 
             composable("guia") {
-                Box(
-                    modifier = Modifier.fillMaxSize(),
-                    contentAlignment = Alignment.TopCenter
-                ) {
+                ContenidoAdaptable {
                     Column(
                         modifier = Modifier
-                            .widthIn(max = 900.dp)
-                            .fillMaxWidth()
+                            .fillMaxSize()
                             .padding(20.dp)
                     ) {
                         GuiaMetodologicaScreen()

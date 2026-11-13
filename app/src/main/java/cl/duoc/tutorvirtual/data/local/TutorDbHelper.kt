@@ -9,7 +9,7 @@ class TutorDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
 
     companion object {
         const val DATABASE_NAME = "tutor_esucar.db"
-        const val DATABASE_VERSION = 1
+        const val DATABASE_VERSION = 2
 
         // Tabla Hitos
         const val TABLE_HITOS = "hitos"
@@ -21,6 +21,7 @@ class TutorDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         const val COL_HITO_ESTADO = "estado"
         const val COL_HITO_PORCENTAJE = "porcentaje"
         const val COL_HITO_COMENTARIOS = "comentarios"
+        const val COL_HITO_CRITERIOS = "criterios"
 
         // Tabla Avances
         const val TABLE_AVANCES = "avances"
@@ -61,7 +62,8 @@ class TutorDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
                 $COL_HITO_FECHA_LIMITE TEXT NOT NULL,
                 $COL_HITO_ESTADO TEXT NOT NULL,
                 $COL_HITO_PORCENTAJE INTEGER NOT NULL DEFAULT 0,
-                $COL_HITO_COMENTARIOS TEXT NOT NULL DEFAULT ''
+                $COL_HITO_COMENTARIOS TEXT NOT NULL DEFAULT '',
+                $COL_HITO_CRITERIOS TEXT NOT NULL DEFAULT ''
             )
         """.trimIndent()
 
@@ -109,14 +111,18 @@ class TutorDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
     }
 
     override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_AVANCES")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_HITOS")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_FAQS")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_PERFIL")
-        onCreate(db)
+        if (oldVersion < 2) {
+            db.execSQL(
+                "ALTER TABLE $TABLE_HITOS ADD COLUMN $COL_HITO_CRITERIOS " +
+                    "TEXT NOT NULL DEFAULT ''"
+            )
+            guardarCriteriosIniciales(db)
+        }
     }
 
     private fun poblarDatosIniciales(db: SQLiteDatabase) {
+        val criteriosPorHito = criteriosIniciales()
+
         // 1. Hitos iniciales para Trabajo de Título ESUCAR
         val hitosIniciales = listOf(
             Triple(
@@ -155,6 +161,7 @@ class TutorDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
                 put(COL_HITO_ESTADO, if (index == 0) "EN_DESARROLLO" else "POR_INICIAR")
                 put(COL_HITO_PORCENTAJE, if (index == 0) 40 else 0)
                 put(COL_HITO_COMENTARIOS, if (index == 0) "Revisar delimitación territorial en la comuna asignada." else "")
+                put(COL_HITO_CRITERIOS, criteriosPorHito[index])
             }
             val idHito = db.insert(TABLE_HITOS, null, cv)
 
@@ -223,4 +230,26 @@ class TutorDbHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME,
         }
         db.insert(TABLE_PERFIL, null, cvPerfil)
     }
+
+    private fun guardarCriteriosIniciales(db: SQLiteDatabase) {
+        criteriosIniciales().forEachIndexed { index, criterios ->
+            val valores = ContentValues().apply {
+                put(COL_HITO_CRITERIOS, criterios)
+            }
+            db.update(
+                TABLE_HITOS,
+                valores,
+                "$COL_HITO_ID = ?",
+                arrayOf((index + 1).toString())
+            )
+        }
+    }
+
+    private fun criteriosIniciales(): List<String> = listOf(
+        "Problema claramente delimitado\nPregunta de investigación coherente\nObjetivos general y específicos alineados",
+        "Fuentes académicas pertinentes\nMarco legal e institucional incorporado\nCitas y referencias bajo norma APA 7",
+        "Enfoque metodológico justificado\nPoblación e instrumentos definidos\nConsideraciones éticas descritas",
+        "Datos registrados de forma ordenada\nAnálisis relacionado con los objetivos\nResultados respaldados por evidencia",
+        "Informe completo y coherente\nPropuesta de mejora aplicable\nPresentación preparada para la defensa"
+    )
 }

@@ -23,5 +23,6 @@ data class Hito(
     val fechaLimite: String,
     val estado: EstadoHito = EstadoHito.POR_INICIAR,
     val porcentajeAvance: Int = 0,
-    val comentariosDocente: String = ""
+    val comentariosDocente: String = "",
+    val criteriosEvaluacion: String = ""
 )
