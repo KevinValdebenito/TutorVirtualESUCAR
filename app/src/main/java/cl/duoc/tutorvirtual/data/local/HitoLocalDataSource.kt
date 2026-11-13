@@ -27,7 +27,8 @@ class HitoLocalDataSource(private val dbHelper: TutorDbHelper) {
                         fechaLimite = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_FECHA_LIMITE)),
                         estado = EstadoHito.fromString(it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_ESTADO))),
                         porcentajeAvance = it.getInt(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_PORCENTAJE)),
-                        comentariosDocente = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_COMENTARIOS))
+                        comentariosDocente = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_COMENTARIOS)),
+                        criteriosEvaluacion = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_CRITERIOS))
                     )
                 )
             }
@@ -54,7 +55,8 @@ class HitoLocalDataSource(private val dbHelper: TutorDbHelper) {
                     fechaLimite = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_FECHA_LIMITE)),
                     estado = EstadoHito.fromString(it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_ESTADO))),
                     porcentajeAvance = it.getInt(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_PORCENTAJE)),
-                    comentariosDocente = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_COMENTARIOS))
+                    comentariosDocente = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_COMENTARIOS)),
+                    criteriosEvaluacion = it.getString(it.getColumnIndexOrThrow(TutorDbHelper.COL_HITO_CRITERIOS))
                 )
             }
         }
@@ -68,6 +70,19 @@ class HitoLocalDataSource(private val dbHelper: TutorDbHelper) {
             put(TutorDbHelper.COL_HITO_PORCENTAJE, nuevoPorcentaje)
         }
         val filas = db.update(
+            TutorDbHelper.TABLE_HITOS,
+            cv,
+            "${TutorDbHelper.COL_HITO_ID} = ?",
+            arrayOf(id.toString())
+        )
+        return filas > 0
+    }
+
+    fun actualizarFechaLimite(id: Long, fecha: String): Boolean {
+        val cv = ContentValues().apply {
+            put(TutorDbHelper.COL_HITO_FECHA_LIMITE, fecha)
+        }
+        val filas = dbHelper.writableDatabase.update(
             TutorDbHelper.TABLE_HITOS,
             cv,
             "${TutorDbHelper.COL_HITO_ID} = ?",

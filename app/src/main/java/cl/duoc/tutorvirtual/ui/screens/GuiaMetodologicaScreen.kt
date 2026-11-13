@@ -1,8 +1,9 @@
 package cl.duoc.tutorvirtual.ui.screens
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -15,7 +16,11 @@ fun GuiaMetodologicaScreen() {
     val etapas = GuiaRepository.etapas
     val etapa = etapas.firstOrNull { it.id == etapaSeleccionada }
 
-    if (etapa == null) {
+    AnimatedVisibility(
+        visible = etapa == null,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
         Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
             Text("Guía metodológica", style = MaterialTheme.typography.headlineSmall)
             Text("Selecciona una etapa para revisar sus orientaciones.")
@@ -28,16 +33,24 @@ fun GuiaMetodologicaScreen() {
                 }
             }
         }
-    } else {
-        Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
-            Text(etapa.titulo, style = MaterialTheme.typography.headlineSmall)
-            Text(etapa.descripcion)
-            Text("Orientaciones", style = MaterialTheme.typography.titleMedium)
-            etapa.orientaciones.forEachIndexed { index, orientacion ->
-                Text("${index + 1}. $orientacion")
-            }
-            OutlinedButton(onClick = { etapaSeleccionada = null }) {
-                Text("Volver a las etapas")
+    }
+
+    AnimatedVisibility(
+        visible = etapa != null,
+        enter = fadeIn(),
+        exit = fadeOut()
+    ) {
+        if (etapa != null) {
+            Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text(etapa.titulo, style = MaterialTheme.typography.headlineSmall)
+                Text(etapa.descripcion)
+                Text("Orientaciones", style = MaterialTheme.typography.titleMedium)
+                etapa.orientaciones.forEachIndexed { index, orientacion ->
+                    Text("${index + 1}. $orientacion")
+                }
+                OutlinedButton(onClick = { etapaSeleccionada = null }) {
+                    Text("Volver a las etapas")
+                }
             }
         }
     }

@@ -3,7 +3,7 @@ package cl.duoc.tutorvirtual.data.repository
 import cl.duoc.tutorvirtual.data.model.EtapaMetodologica
 
 object GuiaRepository {
-    // Contenido didáctico de ejemplo; reemplazar por material autorizado.
+    // Contenido didáctico local utilizado por el prototipo académico.
     val etapas = listOf(
         EtapaMetodologica(
             1, "Planteamiento del problema",

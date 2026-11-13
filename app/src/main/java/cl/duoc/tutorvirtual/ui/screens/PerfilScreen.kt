@@ -1,226 +1,224 @@
-
 package cl.duoc.tutorvirtual.ui.screens
 
-import android.util.Patterns
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import cl.duoc.tutorvirtual.ui.components.ContenidoAdaptable
 import cl.duoc.tutorvirtual.ui.viewmodel.PerfilViewModel
 
 @Composable
 fun PerfilScreen() {
 
     val modelo: PerfilViewModel = viewModel()
+    val estado by modelo.estado.collectAsState()
 
-    val perfil by modelo.perfil.collectAsState()
-    val direccionGuardada by modelo.direccion.collectAsState()
-    val guardado by modelo.guardado.collectAsState()
-    val error by modelo.error.collectAsState()
-
-    var nombre by remember(perfil.nombre) {
-        mutableStateOf(perfil.nombre)
-    }
-
-    var correo by remember(perfil.email) {
-        mutableStateOf(perfil.email)
-    }
-
-    var direccion by remember(direccionGuardada) {
-        mutableStateOf(direccionGuardada)
-    }
-
-    var clave by remember {
-        mutableStateOf("")
-    }
-
-    var mostrarErrores by remember {
-        mutableStateOf(false)
-    }
-
-    val nombreIncorrecto = mostrarErrores && nombre.isBlank()
-
-    val correoIncorrecto = mostrarErrores &&
-            !Patterns.EMAIL_ADDRESS.matcher(correo.trim()).matches()
-
-    val direccionIncorrecta = mostrarErrores && direccion.isBlank()
-
-    val claveIncorrecta = mostrarErrores && clave.length < 6
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .verticalScroll(rememberScrollState())
-            .padding(20.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-
-        Text(
-            "Mi perfil",
-            style = MaterialTheme.typography.headlineSmall
-        )
-
-        FotoPerfil()
-
-        HorizontalDivider()
-
-        if (guardado) {
+    ContenidoAdaptable {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(rememberScrollState())
+                .padding(20.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
 
             Text(
-                "Perfil guardado correctamente",
-                color = MaterialTheme.colorScheme.primary
+                text = "Mi perfil",
+                style = MaterialTheme.typography.headlineSmall
             )
 
-            Card(
-                modifier = Modifier.fillMaxWidth()
-            ) {
-
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp)
-                ) {
-
-                    Text("Nombre: ${perfil.nombre}")
-                    Text("Correo: ${perfil.email}")
-                    Text("Dirección: $direccionGuardada")
-                    Text("RUT: ${perfil.rut}")
-                    Text("Grado: ${perfil.grado}")
-                    Text("Asignatura: ${perfil.asignatura}")
-                    Text("Profesor guía: ${perfil.profesorGuia}")
-                }
-            }
-
-            Button(
-                onClick = {
-                    clave = ""
-                    mostrarErrores = false
-                    modelo.volverEditar()
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Volver a editar")
-            }
-
-        } else {
-
-            Text("Completa tus datos personales")
-
-            OutlinedTextField(
-                value = nombre,
-                onValueChange = { nombre = it },
-                label = { Text("Nombre completo") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = nombreIncorrecto,
-                supportingText = {
-                    if (nombreIncorrecto) {
-                        Text("El nombre es obligatorio")
-                    }
-                }
-            )
-
-            OutlinedTextField(
-                value = correo,
-                onValueChange = { correo = it },
-                label = { Text("Correo electrónico") },
-                modifier = Modifier.fillMaxWidth(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Email
-                ),
-                isError = correoIncorrecto,
-                supportingText = {
-                    if (correoIncorrecto) {
-                        Text("Ingresa un correo válido")
-                    }
-                }
-            )
-
-            OutlinedTextField(
-                value = direccion,
-                onValueChange = { direccion = it },
-                label = { Text("Dirección") },
-                modifier = Modifier.fillMaxWidth(),
-                isError = direccionIncorrecta,
-                supportingText = {
-                    if (direccionIncorrecta) {
-                        Text("La dirección es obligatoria")
-                    }
-                }
-            )
-
-            OutlinedTextField(
-                value = clave,
-                onValueChange = { clave = it },
-                label = { Text("Clave de prueba") },
-                modifier = Modifier.fillMaxWidth(),
-                visualTransformation = PasswordVisualTransformation(),
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Password
-                ),
-                isError = claveIncorrecta,
-                supportingText = {
-                    if (claveIncorrecta) {
-                        Text("Mínimo 6 caracteres")
-                    } else {
-                        Text("Solo para validar; no se guarda")
-                    }
-                }
-            )
+            FotoPerfil()
 
             HorizontalDivider()
 
-            Text(
-                "Información académica",
-                style = MaterialTheme.typography.titleMedium
-            )
+            AnimatedVisibility(
+                visible = estado.guardadoExitoso,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-            Text("RUT: ${perfil.rut}")
-            Text("Grado: ${perfil.grado}")
-            Text("Asignatura: ${perfil.asignatura}")
+                    Text(
+                        text = "Perfil guardado correctamente",
+                        color = MaterialTheme.colorScheme.primary,
+                        style = MaterialTheme.typography.titleMedium
+                    )
 
-            if (error.isNotEmpty()) {
-                Text(
-                    error,
-                    color = MaterialTheme.colorScheme.error
-                )
+                    Card(
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Column(
+                            modifier = Modifier.padding(16.dp),
+                            verticalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Text("Nombre: ${estado.nombre}")
+                            Text("Correo: ${estado.correo}")
+                            Text("Dirección: ${estado.direccion}")
+                            Text("RUT: ${estado.rut}")
+                            Text("Grado: ${estado.grado}")
+                            Text("Asignatura: ${estado.asignatura}")
+                            Text("Profesor guía: ${estado.profesorGuia}")
+                        }
+                    }
+
+                    Button(
+                        onClick = { modelo.volverEditar() },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Volver a editar")
+                    }
+                }
             }
 
-            Button(
-                onClick = {
+            AnimatedVisibility(
+                visible = !estado.guardadoExitoso,
+                enter = fadeIn(),
+                exit = fadeOut()
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
 
-                    mostrarErrores = true
+                    Text("Completa tus datos personales")
 
-                    val nombreValido = nombre.isNotBlank()
+                    // Campo Nombre
+                    OutlinedTextField(
+                        value = estado.nombre,
+                        onValueChange = modelo::onNombreChange,
+                        label = { Text("Nombre completo") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = estado.errores.nombre != null,
+                        trailingIcon = {
+                            if (estado.errores.nombre != null) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = "Error",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        supportingText = {
+                            estado.errores.nombre?.let {
+                                Text(it, color = MaterialTheme.colorScheme.error)
+                            }
+                        }
+                    )
 
-                    val correoValido = Patterns.EMAIL_ADDRESS
-                        .matcher(correo.trim())
-                        .matches()
+                    // Campo Correo
+                    OutlinedTextField(
+                        value = estado.correo,
+                        onValueChange = modelo::onCorreoChange,
+                        label = { Text("Correo electrónico") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                        isError = estado.errores.correo != null,
+                        trailingIcon = {
+                            if (estado.errores.correo != null) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = "Error",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        supportingText = {
+                            estado.errores.correo?.let {
+                                Text(it, color = MaterialTheme.colorScheme.error)
+                            }
+                        }
+                    )
 
-                    val direccionValida = direccion.isNotBlank()
+                    // Campo Dirección
+                    OutlinedTextField(
+                        value = estado.direccion,
+                        onValueChange = modelo::onDireccionChange,
+                        label = { Text("Dirección") },
+                        modifier = Modifier.fillMaxWidth(),
+                        isError = estado.errores.direccion != null,
+                        trailingIcon = {
+                            if (estado.errores.direccion != null) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = "Error",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        supportingText = {
+                            estado.errores.direccion?.let {
+                                Text(it, color = MaterialTheme.colorScheme.error)
+                            }
+                        }
+                    )
 
-                    val claveValida = clave.length >= 6
+                    // Campo Clave
+                    OutlinedTextField(
+                        value = estado.clave,
+                        onValueChange = modelo::onClaveChange,
+                        label = { Text("Clave de prueba") },
+                        modifier = Modifier.fillMaxWidth(),
+                        visualTransformation = PasswordVisualTransformation(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        isError = estado.errores.clave != null,
+                        trailingIcon = {
+                            if (estado.errores.clave != null) {
+                                Icon(
+                                    imageVector = Icons.Default.Warning,
+                                    contentDescription = "Error",
+                                    tint = MaterialTheme.colorScheme.error
+                                )
+                            }
+                        },
+                        supportingText = {
+                            val mensajeError = estado.errores.clave
+                            if (mensajeError != null) {
+                                Text(mensajeError, color = MaterialTheme.colorScheme.error)
+                            } else {
+                                Text("Solo para validar (mínimo 6 caracteres); no se guarda")
+                            }
+                        }
+                    )
 
-                    if (nombreValido &&
-                        correoValido &&
-                        direccionValida &&
-                        claveValida
-                    ) {
-                        modelo.guardar(
-                            nombre,
-                            correo,
-                            direccion
+                    HorizontalDivider()
+
+                    Text(
+                        "Información académica institucional",
+                        style = MaterialTheme.typography.titleMedium
+                    )
+
+                    Text("RUT: ${estado.rut}")
+                    Text("Grado: ${estado.grado}")
+                    Text("Asignatura: ${estado.asignatura}")
+                    Text("Profesor guía: ${estado.profesorGuia}")
+
+                    if (estado.errorMensaje.isNotEmpty()) {
+                        Text(
+                            text = estado.errorMensaje,
+                            color = MaterialTheme.colorScheme.error
                         )
                     }
-                },
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                Text("Guardar perfil")
+
+                    Button(
+                        onClick = {
+                            modelo.guardar()
+                        },
+                        modifier = Modifier.fillMaxWidth()
+                    ) {
+                        Text("Guardar perfil")
+                    }
+                }
             }
         }
     }
